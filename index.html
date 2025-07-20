@@ -246,57 +246,6 @@
           font-weight: bold;
         }
 
-        /* 모달 */
-        .modal {
-          display: none;
-          position: fixed;
-          z-index: 1000;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.7);
-          justify-content: center;
-          align-items: center;
-        }
-
-        .modal.show {
-          display: flex;
-        }
-
-        .modal-content {
-          position: relative;
-          width: 90vw;
-          max-width: 600px;
-          height: auto;
-          overflow: hidden;
-          background: #111;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          user-select: none;
-          -webkit-user-drag: none;
-        }
-
-        .modal-slide {
-          display: flex;
-          width: 100%;
-          height: 100%;
-          transition: transform 0.4s ease;
-          will-change: transform;
-        }
-
-        .modal-slide img {
-          flex-shrink: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          pointer-events: none;
-          user-select: none;
-          -webkit-user-drag: none;
-          background: #111;
-        }
-
         /* 스크롤 시 부드럽게 위로 올라오는 애니메이션 */
         .fade-up-section {
           opacity: 0;
@@ -559,28 +508,6 @@
     </div>
 </div>
 
-<!-- studio 모달 -->
-<div class="modal" id="studio-modal">
-    <button class="nav-button prev-button" id="studio-prevBtn">&#10094;</button>
-    <div class="modal-content" id="studio-modal-content">
-        <div class="modal-slide" id="studio-modal-slide">
-            <!-- 슬라이드 이미지들 JS로 삽입 -->
-        </div>
-    </div>
-    <button class="nav-button next-button" id="studio-nextBtn">&#10095;</button>
-</div>
-
-<!-- friend 모달 -->
-<div class="modal" id="friend-modal">
-    <button class="nav-button prev-button" id="friend-prevBtn">&#10094;</button>
-    <div class="modal-content" id="friend-modal-content">
-        <div class="modal-slide" id="friend-modal-slide">
-            <!-- 슬라이드 이미지들 JS로 삽입 -->
-        </div>
-    </div>
-    <button class="nav-button next-button" id="friend-nextBtn">&#10095;</button>
-</div>
-
 <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=21r7anoy2r"></script>
 <script>
     // 우클릭 금지
@@ -620,89 +547,21 @@
 
     // 갤러리 섹션
     class Gallery {
-      constructor(galleryData, gallery, galleryLarge, modal, modalContent, modalSlide, prevBtn, nextBtn) {
+      constructor(galleryData, gallery, galleryLarge) {
         this.galleryData = galleryData;
         this.gallery = gallery;
         this.galleryLarge = galleryLarge;
-        this.modal = modal;
-        this.modalContent = modalContent;
-        this.modalSlide = modalSlide;
-        this.prevBtn = prevBtn;
-        this.nextBtn = nextBtn;
         this.currentIndex = 0;
         this.isAnimating = false;
       }
 
       renderSlides(index) {
-        this.modalSlide.innerHTML = "";
-
         // 인덱스 계산
         const prevIndex = (index - 1 + this.galleryData.length) % this.galleryData.length;
         const nextIndex = (index + 1) % this.galleryData.length;
 
-        // 이전 이미지
-        const prevImg = document.createElement("img");
-        prevImg.src = this.galleryData[prevIndex];
-        prevImg.alt = `갤러리 이미지 ${prevIndex + 1}`;
-        this.modalSlide.appendChild(prevImg);
-
-        // 현재 이미지
-        const currentImg = document.createElement("img");
-        currentImg.src = this.galleryData[index];
-        currentImg.alt = `갤러리 이미지 ${index + 1}`;
-        this.modalSlide.appendChild(currentImg);
-
-        // 다음 이미지
-        const nextImg = document.createElement("img");
-        nextImg.src = this.galleryData[nextIndex];
-        nextImg.alt = `갤러리 이미지 ${nextIndex + 1}`;
-        this.modalSlide.appendChild(nextImg);
-
-        // 현재 중앙 이미지 보여주도록 transform
-        this.modalSlide.style.transform = "translateX(-100%)";
-
         // ✅ 모달의 현재 이미지를 gallery-large에 반영
         this.galleryLarge.src = this.galleryData[index];
-      }
-
-      openModal(index) {
-        this.currentIndex = index;
-        this.renderSlides(this.currentIndex);
-        this.modal.classList.add("show");
-        document.body.style.overflow = "hidden";
-      }
-
-      closeModal() {
-        this.modal.classList.remove("show");
-        document.body.style.overflow = "";
-      }
-
-      // 네비게이션 이동 함수
-      slideTo(newIndex, direction) {
-        if (this.isAnimating) return;
-        this.isAnimating = true;
-
-        // direction: 'next' or 'prev'
-        // 슬라이드 컨테이너 이동해서 다음 또는 이전 이미지 보여주기
-        let offset = direction === "next" ? -200 : 0; // 좌우로 한 칸 이동 (두 이미지 너비만큼)
-
-        this.modalSlide.style.transition = "transform 0.4s ease";
-        this.modalSlide.style.transform = `translateX(${offset}%)`;
-
-        this.modalSlide.addEventListener("transitionend", (e) => this.onTransitionEnd(direction));
-      }
-
-      onTransitionEnd(direction) {
-        this.modalSlide.style.transition = "none";
-        this.modalSlide.removeEventListener("transitionend", this.onTransitionEnd);
-
-        if (direction === "next") {
-          this.currentIndex = (this.currentIndex + 1) % this.galleryData.length;
-        } else {
-          this.currentIndex = (this.currentIndex - 1 + this.galleryData.length) % this.galleryData.length;
-        }
-        this.renderSlides(this.currentIndex);
-        this.isAnimating = false;
       }
 
       initialize() {
@@ -711,22 +570,7 @@
           const img = document.createElement("img");
           img.src = src;
           img.alt = `갤러리 이미지 ${index + 1}`;
-          img.addEventListener("click", () => {
-            this.openModal(index);
-          });
           this.gallery.appendChild(img);
-        });
-
-        // 모달 영역 클릭 시 닫기 (배경 클릭 시)
-        this.modal.addEventListener("click", (e) => {
-          if (e.target === this.modal) {
-            this.closeModal();
-          }
-        });
-
-        // 큰 이미지 클릭시 모달 열기 (현재 보여지는 큰 이미지 인덱스 기반)
-        this.galleryLarge.addEventListener("click", () => {
-          this.openModal(this.currentIndex);
         });
 
         // 썸네일 클릭 시 큰 이미지 변경 (갤러리)
@@ -738,17 +582,6 @@
           }
         });
 
-        // 버튼 이벤트 연결
-        this.prevBtn.addEventListener("click", (e) => {
-          e.stopPropagation(); // 모달 닫힘 방지
-          this.slideTo(this.currentIndex - 1, "prev");
-        });
-
-        this.nextBtn.addEventListener("click", (e) => {
-          e.stopPropagation(); // 모달 닫힘 방지
-          this.slideTo(this.currentIndex + 1, "next");
-        });
-
         // 페이지 로드 시 큰 이미지 초기화
         this.galleryLarge.src = this.galleryData[0];
       }
@@ -758,26 +591,14 @@
     const studioGallery = document.getElementById("studio-gallery");
     const studioGalleryLarge = document.getElementById("studio-gallery-large");
 
-    const studioModal = document.getElementById("studio-modal");
-    const studioModalContent = document.getElementById("studio-modal-content");
-    const studioModalSlide = document.getElementById("studio-modal-slide");
-    const studioPrevBtn = document.getElementById("studio-prevBtn");
-    const studioNextBtn = document.getElementById("studio-nextBtn");
-
-    const studioGallerySection = new Gallery(studioGalleryData, studioGallery, studioGalleryLarge, studioModal, studioModalContent, studioModalSlide, studioPrevBtn, studioNextBtn);
+    const studioGallerySection = new Gallery(studioGalleryData, studioGallery, studioGalleryLarge);
     studioGallerySection.initialize();
 
     const friendGalleryData = ["static/images/friend/1", "static/images/friend/2", "static/images/friend/3", "static/images/friend/4", "static/images/friend/5", "static/images/friend/6", "static/images/friend/7", "static/images/friend/8", "static/images/friend/9", "static/images/friend/10", "static/images/friend/11"]
     const friendGallery = document.getElementById("friend-gallery");
     const friendGalleryLarge = document.getElementById("friend-gallery-large");
 
-    const friendModal = document.getElementById("friend-modal");
-    const friendModalContent = document.getElementById("friend-modal-content");
-    const friendModalSlide = document.getElementById("friend-modal-slide");
-    const friendPrevBtn = document.getElementById("friend-prevBtn");
-    const friendNextBtn = document.getElementById("friend-nextBtn");
-
-    const friendGallerySection =  new Gallery(friendGalleryData, friendGallery, friendGalleryLarge, friendModal, friendModalContent, friendModalSlide, friendPrevBtn, friendNextBtn);
+    const friendGallerySection =  new Gallery(friendGalleryData, friendGallery, friendGalleryLarge);
     friendGallerySection.initialize();
 
     // 계좌 섹션
